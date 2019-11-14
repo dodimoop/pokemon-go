@@ -6,18 +6,25 @@ import { isEmpty } from 'lodash'
 import Axios from '../../Services/index'
 
 // Import component and style
+import styles from './styles'
 import Card from '../../Components/Card/index'
 
-import styles from './styles'
-
-const List = ({ classes }) => {
+const List = ({ classes, history }) => {
   const [result, setResult] = useState([])
   const [startOffset, setStartOffset] = useState(0)
 
   useEffect(() => {
     const fetchData = async () => {
       const response = await Axios.get(`?offset=${startOffset}&limit=20`)
-      setResult([...result, ...response.data.results])
+      const dataResult = response.data.results
+      const data = await Promise.all(
+        dataResult.map(async item => {
+          const getNewResponse = await Axios.get(`${item.name}`)
+          const newResponse = getNewResponse.data
+          return newResponse
+        })
+      )
+      setResult([...result, ...data])
     }
 
     fetchData()
@@ -33,7 +40,12 @@ const List = ({ classes }) => {
         <div className={classes.body}>
           <div className={classes.List}>
             {result.map(data => (
-              <Card key={data.name} name={data.name} clickable />
+              <Card
+                key={data.name}
+                image={data.sprites.front_default}
+                name={data.name}
+                onClick={() => history.push(`detail/${data.name}`)}
+              />
             ))}
           </div>
           <div className={classes.wrapperButton}>
@@ -42,7 +54,7 @@ const List = ({ classes }) => {
               className={classes.loadMore}
               onClick={() => onLoadMore()}
             >
-              load more
+              Load More
             </button>
           </div>
         </div>
@@ -52,7 +64,8 @@ const List = ({ classes }) => {
 }
 
 List.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired
 }
 
 export default withStyles(styles)(List)
