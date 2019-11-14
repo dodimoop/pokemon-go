@@ -1,6 +1,6 @@
 ### POKEMON-GO
 
-[<img src="./public/image.png">](./public/pokemon.png)
+[<img src="./public/pokemon.png">](./public/pokemon.png)
 
 ## Available Scripts
 
